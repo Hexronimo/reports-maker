@@ -1,3 +1,5 @@
+var reportsApi = Vue.resource('/reports-maker/reports{/id}');
+
 const app = new Vue({
   el: '#root',
   data: {

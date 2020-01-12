@@ -3,9 +3,6 @@ package com.github.hexronimo.reportmaker.model;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.web.bind.annotation.PathVariable;
-
-import java.time.LocalDate;
 
 @Document
 public class Report {
