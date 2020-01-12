@@ -1,7 +1,7 @@
 target/
 .dbeaver/
 .idea/
-.setting/
+.settings/
 .vscode/
 reportmaker.iml
 .classpath
