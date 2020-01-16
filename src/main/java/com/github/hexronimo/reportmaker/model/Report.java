@@ -12,6 +12,10 @@ public class Report {
 	private String name;
 	private String dateStart;
 	private String dateEnd;
+	
+	public Report() {
+		id = new ObjectId();
+	}
 
     public Report(String name, String dateStart, String dateEnd) {
         this.name = name;
