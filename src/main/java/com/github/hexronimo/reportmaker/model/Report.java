@@ -1,5 +1,8 @@
 package com.github.hexronimo.reportmaker.model;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -10,23 +13,38 @@ public class Report {
 	@Id
     private ObjectId id;
 	private String name;
-	private String dateStart;
-	private String dateEnd;
+	private String officialName;
+	private LocalDate dateStart;
+	private LocalDate dateEnd;
+
 	
 	public Report() {
 		id = new ObjectId();
 	}
 
-    public Report(String name, String dateStart, String dateEnd) {
-        this.name = name;
-        this.dateStart = dateStart;
-        this.dateEnd = dateEnd;
-        id = new ObjectId();
-    }
-  
-    public String getId() {
+    public String getFancyDateStart() {
+    	String d = dateStart.format(DateTimeFormatter.ofPattern("d MMMM yyyy"));
+		return d;
+	}
+
+	public String getFancyDateEnd() {
+		if (dateEnd == null) return "";
+    	String d = dateEnd.format(DateTimeFormatter.ofPattern("d MMMM yyyy"));
+		return d;
+	}
+
+	public String getId() {
     	  return id.toHexString();
     }
+    
+    public void setOfficialName(String officialName) {
+    	this.officialName = officialName;
+    }
+
+	public String getOfficialName() {
+		if (officialName == null) return name;
+		return officialName;
+	}
 
 	public String getName() {
         return name;
@@ -36,20 +54,25 @@ public class Report {
         this.name = name;
     }
 
-    public String getDateStart() {
+    public LocalDate getDateStart() {
         return dateStart;
     }
-
+   
     public void setDateStart(String dateStart) {
-        this.dateStart = dateStart;
+    	LocalDate date = LocalDate.parse(dateStart);
+        this.dateStart = date;
     }
 
-    public String getDateEnd() {
-        return dateEnd;
+    
+    public LocalDate getDateEnd() {
+    	return dateEnd;
     }
 
     public void setDateEnd(String dateEnd) {
-        this.dateEnd = dateEnd;
+    	if (dateEnd != null && dateEnd.length() > 0) {
+	    	LocalDate date = LocalDate.parse(dateEnd);
+	        this.dateStart = date;
+    	}
     }
 }
 
