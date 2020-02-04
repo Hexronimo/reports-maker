@@ -1,0 +1,9 @@
+{
+	"PHOTOREPORT": { 
+		"text-right-top" : "Приложение к отчёту о мероприятии\n \"{name}\" \n Фотографии",
+		"text" : "",
+		"images" : "",
+		"text-left-bottom" : "{company}",
+		"text-right-bottom" : "{today}"
+	}
+}

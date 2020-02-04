@@ -2,6 +2,8 @@ package com.github.hexronimo.reportmaker.model;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -16,10 +18,12 @@ public class Report {
 	private String officialName;
 	private LocalDate dateStart;
 	private LocalDate dateEnd;
-
+	
+	private List<Doc> docs;
 	
 	public Report() {
 		id = new ObjectId();
+		docs = new ArrayList<>();
 	}
 
     public String getFancyDateStart() {
