@@ -1,15 +1,22 @@
 package com.github.hexronimo.reportmaker.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bson.types.ObjectId;
 
-public class Document implements Doc {
+public class DocumentPhotoReport extends Document {
 
 	private ObjectId _id;
+	private final int type = 1; // one for Photoreports
 	private String data;
 	private Layout layout;
 
-	public Document() {
+	private List<String> photos;
+
+	public DocumentPhotoReport() {
 		_id = new ObjectId();
+		photos = new ArrayList<>();
 	}
 
 	@Override
@@ -37,4 +44,15 @@ public class Document implements Doc {
 		return _id.toHexString();
 	}
 
+	public void setPhotos(List<String> photos) {
+		this.photos = photos;
+	}
+
+	public List<String> getPhotos() {
+		return photos;
+	}
+
+	public int getType() {
+		return type;
+	}
 }

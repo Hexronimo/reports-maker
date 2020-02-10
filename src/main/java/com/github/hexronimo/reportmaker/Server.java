@@ -21,14 +21,14 @@ public class Server extends TextWebSocketHandler implements WebSocketHandler {
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) {
 		sessions.add(session);
+		System.out.println(session.getId());
 	}
 
 	@Override
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
 		sessions.remove(session);
 		if (sessions.size() == 0) {
-			repController.cleanPhotos();
+			System.out.println("Нет клиентов");
 		}
 	}
 }
-	

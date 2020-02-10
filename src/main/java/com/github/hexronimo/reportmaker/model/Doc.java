@@ -1,15 +1,15 @@
 package com.github.hexronimo.reportmaker.model;
 
-import java.io.File;
-import java.util.List;
-
 public interface Doc {
-	
-	public void setFile(File file);
-	public File getFile();
-	
+
 	public String getId();
+
+	public void setLayout(Layout layuot);
+
 	public Layout getLayout();
-	
-	public List<String> parseDoc();
+
+	public void setData(String data);
+
+	public String getData();
+
 }

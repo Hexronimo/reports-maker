@@ -1,0 +1,17 @@
+target/
+.dbeaver/
+.idea/
+.settings/
+.vscode/
+reportmaker.iml
+.classpath
+.project
+
+src/.classpath
+src/.project
+src/.settings
+src/.dbeaver
+src/test
+src/bin
+
+
