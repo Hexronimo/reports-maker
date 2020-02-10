@@ -1,11 +1,13 @@
 package com.github.hexronimo.reportmaker.model;
 
+import java.util.Base64;
+
 import org.bson.types.Binary;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "img")
+@Document
 public class Photo {
     @Id
     private ObjectId id;
@@ -13,13 +15,13 @@ public class Photo {
     private String title;
          
     private Binary image;
+    
+    public Photo() {
+    	id = new ObjectId();
+    }
 
 	public String getId() {
 		return id.toHexString();
-	}
-
-	public void setId(ObjectId id) {
-		this.id = id;
 	}
 
 	public String getTitle() {
@@ -30,8 +32,8 @@ public class Photo {
 		this.title = title;
 	}
 
-	public Binary getImage() {
-		return image;
+	public String getImage() {
+		return "data:image/jpg;base64," + Base64.getEncoder().encodeToString(image.getData());
 	}
 
 	public void setImage(Binary image) {

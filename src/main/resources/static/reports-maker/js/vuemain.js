@@ -34,7 +34,17 @@ var app = new Vue({
     templatePart5: false,
     
     layout: {},
-    photos: null,
+    photos: [],
+    uploadedPhotos: [],
+    mainProps: {
+          center: true,
+          fluidGrow: true,
+          blank: true,
+          blankColor: '#bbb',
+          width: 600,
+          height: 400,
+          class: 'my-2'
+        },
 
     newDoc: [],
 
@@ -106,9 +116,8 @@ var app = new Vue({
           footerCenter: this.replacePatterns(this.layout.footerCenter),
           footerRight: this.replacePatterns(this.layout.footerRight),
           footer: this.replacePatterns(this.layout.footer)
-        }
-        
-          },
+        } 
+      },
       replacePatterns(str){
         var today = new Date();
         var dd = String(today.getDate()).padStart(2, '0');
@@ -183,13 +192,30 @@ var app = new Vue({
 
         if(!this.selected[0].id != null){
             reportsApi.save({}, this.selected[0]).then(result => {
-            result.json()
+              if (result.ok) {
+                this.reports.splice(this.reports.indexOf(this.selected[0]), 1);
+                this.selected = [{}]
+                this.$bvToast.toast('Обновлено успешно',{
+                title: 'Уведомление',
+                variant: "success",
+                autoHideDelay: 2000
+                })
+              } 
           })  
         } else {
           reportsApi.save({}, this.selected[0]).then(result => {
-            result.json().then(data =>
-            this.reports.push(data[data.length-1])
-            )
+              if (result.ok) {
+                result.json().then(data =>
+                  this.reports.push(data[data.length-1])
+                )
+                this.reports.splice(this.reports.indexOf(this.selected[0]), 1);
+                this.selected = [{}]
+                this.$bvToast.toast('Сохранено успешно',{
+                title: 'Уведомление',
+                variant: "success",
+                autoHideDelay: 2000
+                })
+              } 
           })
         }
         this.form.disabled = true
@@ -224,16 +250,25 @@ var app = new Vue({
       },
       uploadPhotos(){
         var formData = new FormData();
-        formData.append("photos", this.photos);
+        formData.append('reportId', this.selected[0].id);
+        for (var i = 0; i < this.photos.length; i++) {
+          formData.append('photos'+i, this.photos[i]);
+        }
         this.$http.post('reports/photo', formData).then(result => {
           if (result.ok) {
-                this.$bvToast.toast('Загружено успешно',{
+                this.$bvToast.toast('Обновлено успешно',{
                 title: 'Уведомление',
                 variant: "success",
                 autoHideDelay: 2000
                 })
+                this.$refs['file-input'].reset()
+                this.countPaperFormat()
+                result.json().then(data => {
+                    this.uploadedPhotos = this.uploadedPhotos.concat(data);
+                })
           }
         })
+  
       },
       onRowSelected(item) {
         if (item.length == 0) {
@@ -244,6 +279,17 @@ var app = new Vue({
           this.selected = item;
         }
 
+      },
+      onShowPrintPage(){
+          var win = window.open('printpage.html', '_blank');
+          win.focus();
+          document.getElementById('printRoot').innerHTML = '<p>Hello World!</p>';
+      },
+      countPaperFormat(){
+        var paper = document.getElementById('paper') 
+        var w = paper.offsetWidth;
+        paper.style.width = w + 'px';
+        paper.style.height = (w * 1.41) + 'px';
       }
 
     }

@@ -21,8 +21,6 @@ public class Document implements Doc {
 	public Layout getLayout() {
 		return layout;
 	}
-	
-
 
 	@Override
 	public File getFile() {
