@@ -1,5 +1,6 @@
 package com.github.hexronimo.reportmaker.model;
 
+
 public interface Doc {
 
 	public String getId();

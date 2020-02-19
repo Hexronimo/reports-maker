@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -19,35 +18,32 @@
 <body>
 <div id="root">
 <template>
-<div>
-    <b-navbar toggleable="lg" type="dark" variant="dark">
-    <b-navbar-brand><h4 class="m-0">Отчёты</h4></b-navbar-brand>
 
-    <b-navbar-toggle target="nav-collapse" ></b-navbar-toggle>
-
-    <b-collapse id="nav-collapse" is-nav>
-      <b-navbar-nav>
-        <b-button variant="link" @click="addNewReportTemplate" v-show="templatePart1" class="mr-3 text-light">Создать</b-button>
-        <b-button variant="link" @click="listReportsTemplate" v-show="!templatePart1" class="mr-3 text-light">Список</b-button>
-        <b-navbar-nav v-show="seen" class="ml-3 m-1">
-            <b-button class="my-2 my-sm-0 mr-2" v-show="templatePart1" @click="openReportTemplate" size="sm">Открыть</b-button>
-            <b-button class="my-2 my-sm-0" v-show="templatePart1" @click="onReportDelete" size="sm">Удалить</b-button>
-        </b-navbar-nav>
-      </b-navbar-nav>
-      <b-navbar-nav class="ml-auto">
-        <b-button variant="link" @click="layoutDesigner" class="mr-3 text-light">Редактор шаблонов</b-button>
-        <b-nav-form>
-          <b-form-input size="sm" class="mr-sm-2" placeholder="Слова для поиска"></b-form-input>
-          <b-button size="sm" class="my-2 my-sm-0" type="submit">Найти</b-button>
-        </b-nav-form>
-      </b-navbar-nav>
-
-    </b-collapse>
-  </b-navbar>
- </div> 
-
-  <div v-show="templatePart1">
-    <b-table hover ref="selectableTable" selectable selected-variant="success" select-mode="single" @row-selected="onRowSelected" responsive="sm" outlined :fields="fields" :items="reports">
+	<b-navbar toggleable="lg" type="dark" variant="dark">
+		<b-navbar-brand><h4 class="m-0">Отчёты</h4></b-navbar-brand>
+		
+		<b-collapse id="nav-collapse" is-nav>
+		      <b-navbar-nav>
+		        <a href="edit-report.html"><b-button variant="link" class="mr-3 text-light">Создать</b-button></a>
+		        <b-navbar-nav v-show="seen" class="ml-3 m-1">
+		            <b-button class="my-2 my-sm-0 mr-2" v-show="selected != null" @click="onOpenReport" size="sm">Открыть</b-button>
+		            <b-button class="my-2 my-sm-0" v-show="selected != null" @click="onReportDelete" size="sm">Удалить</b-button>
+		        </b-navbar-nav>
+		      </b-navbar-nav>
+		      <b-navbar-nav class="ml-auto">
+		        <b-link href="layouteditor.html"><b-button variant="link" class="mr-3 text-light">Редактор шаблона</b-button>
+		        </b-link>
+		        <b-nav-form>
+		          <b-form-input size="sm" class="mr-sm-2" placeholder="Слова для поиска"></b-form-input>
+		          <b-button size="sm" class="my-2 my-sm-0" type="submit">Найти</b-button>
+		        </b-nav-form>
+		      </b-navbar-nav>
+		    </b-collapse>
+	</b-navbar>
+ 
+    <b-table hover ref="selectableTable" selectable selected-variant="success" 
+    	select-mode="single" @row-selected="onRowSelected" responsive="sm" 
+    	outlined :fields="fields" :items="reports" :sort-by.sync="sortBy" sort-desc>
             <template v-slot:cell(selected)="{ rowSelected }">
                 <template v-if="rowSelected">
                     <span aria-hidden="true">&check;</span>
@@ -59,250 +55,7 @@
                 </template>
             </template>
     </b-table>
-  </div>
 
-  <div v-show="templatePart2" class="container mt-5">
-    <b-form @submit="onReportSubmit" novalidate>
-      <b-form-group id="input-group-1" label="Название:" label-for="input-1">
-        <b-input :disabled="form.disabled == true"
-          id="input-1"
-          v-model="selected[0].name"
-          :state="form.isvalid1"
-          required
-        ></b-input>
-      <b-form-invalid-feedback :state="form.isvalid1">
-        Напишите название
-      </b-form-invalid-feedback>
-      </b-form-group>
-      <b-form-group id="input-group-4" label="Название для отчётов:" 
-      description="Название мероприятия, которое будет отображаться в отчётах. Можно оставить пустым, если совпадает с обычным названием"
-      label-for="input-4">
-        <b-form-input :disabled="form.disabled == true"
-          id="input-4"
-          v-model="selected[0].officialName"
-        ></b-form-input>
-
-      </b-form-group>
-      <div class="row">
-        <div class="col-sm-6">
-          <b-form-group id="input-group-2 mb-2" label="Дата начала:" label-for="input-2" >
-            <b-input inline id="input-2" :disabled="form.disabled == true"
-                  type="date"
-                  v-model="selected[0].dateStart"
-                  required
-                  :state="form.isvalid2"
-            ></b-input>
-          <b-form-invalid-feedback :state="form.isvalid2">
-            Введите дату начала
-          </b-form-invalid-feedback>
-          </b-form-group>
-        </div>
-        <div class="col-sm-6">
-          <b-form-group id="input-group-2 mb-2" label="Дата окончания (необязательно):" label-for="input-3" >
-            <b-form-input inline id="input-3" :disabled="form.disabled == true"
-                  type="date"
-                  v-model="selected[0].dateEnd"
-                  :state="form.isvalid3"
-            ></b-form-input>
-            <b-form-invalid-feedback :state="form.isvalid3">
-            Дата окончания должна быть позже даты начала
-            </b-form-invalid-feedback>
-          </b-form-group>
-        </div>
-      </div>
-    <b-button variant="primary" v-show="form.disabled != true" type="submit">Сохранить</b-button>
-    <b-button variant="primary" v-show="form.disabled == true" @click="onReportEdit">Редактировать</b-button>
-    </b-form>
-  </div>
-
-  <div v-show="templatePart3" class="border-top mt-5 pt-5">
-    <div class="container">
-      <b-form inline>
-          <label class="mr-2" for="inline-form-input">Выберите тип отчёта: </label>
-          <b-form-select class="mr-2" id="inline-form-input" v-model="selectedDocType" :options="docType" >
-          </b-form-select>
-          <b-button variant="primary" @click="createNewDoc">Создать</b-button>
-      </b-form>    
-    </div>
-  </div>
-
-  <div v-show="templatePart4" class="border-top mt-5 pt-5">
-      <div class="container">
-        <h4 class="mt-0">Редактор отчёта</h4>
-        <p class="text-justify">Внесите все необходимые изменения, заполните пустые поля и сохраните отчёт. На основе сохраненных данных будет сформирован печатный вариант отчёта.</p>
-      
- 
-      Фотографии:
-      <b-form-file ref="file-input"
-        v-model="photos"
-        accept="image/*"
-        multiple
-        placeholder="Выберите файлы или перетащите сюда..."
-      ></b-form-file>
-      <p>
-        <small class="text-muted">Рекомендуется загружать не более 6-8 фотографий для размещения на одном листе. Можно загружать фотографии несколько раз (будут добавляться к набору)</small>
-      </p>
-      <p class="mb-2"><b-button @click="uploadPhotos">Загрузить</b-button></p>
-        <div class="row mb-5">
-          <div class="col-md-2 position-relative" v-for="photo in uploadedPhotos">
-            <div class="position-absolute text-right w-100 h4 mr-3 btn pr-3"><b-icon-x-square-fill class="rounded bg-light"></b-icon-x-square-fill></div>
-              <b-img-lazy v-bind="mainProps" :src="'data:image/jpg;base64,' + photo.image"></b-img-lazy>
-          </div>
-        </div>
-
-      <div class="border bg-light text-dark p-3 mb-1 d-flex flex-column" style="justify-content: space-between;" ref="paper" id="paper">
-    
-            <div class="container-fluid mb-3 px-5 py-4">
-              <div class="row">
-                <div class="col-md-4">
-                    <div v-html="newDoc.headLeft"></div>  
-                    </div>
-                <div class="col-md-4">
-                    <div v-html="newDoc.headCenter"></div>  
-                </div>
-                <div class="col-md-4">
-                    <div v-html="newDoc.headRight"></div>       
-                </div>
-                <div class="col-md-12">
-                    <div v-html="newDoc.body"></div>         
-                </div>
-              </div>
-            </div>
-
-            <div class="container-fluid px-5 pb-4">
-              <div class="pl-5">
-                <div class="row">
-                  <div class="col-md-6 position-relative p-2" v-for="photo in uploadedPhotos">
-                      <b-img :src="'data:image/jpg;base64,' + photo.image" fluid></b-img>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="container-fluid px-5 py-3">
-                <div class="row">
-                  <div class="col-md-12">
-                    <div v-html="newDoc.footer"></div>  
-                  </div>
-                  <div class="col-md-4">
-                      <div v-html="newDoc.footerLeft"></div>  
-                  </div>
-                  <div class="col-md-4">
-                    <div v-html="newDoc.footerCenter"></div>           
-                  </div>
-                  <div class="col-md-4">
-                    <div v-html="newDoc.footerRight"></div>    
-                  </div>
-                </div>
-            </div>  
-
-          </div>
-          <p><small class="text-muted">Печатная форма и выгрузка станут доступны после сохранения</small></p>
-          <p class="mb-5"><b-button @click="onShowPrintPage">Сохранить</b-button></p>
-
-        </div>
-       </div>
- 
-
-  <div v-show="templatePart5">
-    <div class="container mt-4 mb-4">
-      <p>В шаблонах можно использовать коды подставновки:</p>
-      <ul class="list-group">
-        <li class="list-group-item">{repname} — название типа отчёта</li>
-        <li class="list-group-item">{name} — название мероприятия</li>
-        <li class="list-group-item">{org} — название организации</li>
-        <li class="list-group-item">{dirpos} — должность главы организации (например, Директор)</li>
-        <li class="list-group-item">{dirname} — Ф.И.О. главы организации</li>
-        <li class="list-group-item">{today} — сегодняшняя дата</li>
-      </ul>
-      <p></p>
-      <p>Поля ниже можно оставить пустыми, в этом случае будет сформирована форма отчёта с пустыми полями для заполнения. Изменения шаблона затронут только вновь создаваемые отчёты.</p>
-
-    <b-form @submit="onLayoutSubmit" enctype="multipart/form-data">
-      <p class="m-0">Шапка:</p>
-      <div class="container-fluid mb-3 p-3 border">
-        <div class="row">
-          <div class="col-md-4">
-              <b-form-textarea
-                v-model="layout.headLeft"
-                rows="4"
-              ></b-form-textarea>
-          </div>
-          <div class="col-md-4">
-              <b-form-textarea
-                v-model="layout.headCenter"
-                rows="4"
-              ></b-form-textarea>       
-          </div>
-          <div class="col-md-4">
-              <b-form-textarea
-                v-model="layout.headRight"
-                rows="4"
-              ></b-form-textarea>           
-          </div>
-          <div class="col-md-12">
-              <b-form-textarea
-                v-model="layout.body"
-                rows="4"
-              ></b-form-textarea>         
-          </div>
-        </div>
-       </div>
-
-       <p class="m-0">Низ:</p>
-       <div class="container-fluid mb-3 p-3 border">
-        <div class="row">
-          <div class="col-md-12">
-              <b-form-textarea
-                v-model="layout.footer"
-                rows="4"
-              ></b-form-textarea>          
-          </div>
-          <div class="col-md-4">
-              <b-form-textarea
-                v-model="layout.footerLeft"
-                rows="4"
-              ></b-form-textarea>
-          </div>
-          <div class="col-md-4">
-              <b-form-textarea
-                v-model="layout.footerCenter"
-                rows="4"
-              ></b-form-textarea>      
-          </div>
-          <div class="col-md-4">
-              <b-form-textarea
-                v-model="layout.footerRight"
-                rows="4"
-              ></b-form-textarea>           
-          </div>
-        </div>
-    </div>  
-
-      <b-form-group id="l-input-group-11" label="Название организации:" label-for="input-11">
-        <b-input
-          id="input-11"
-          v-model="layout.organization"
-        ></b-input>
-      </b-form-group>
-      <b-form-group id="l-input-group-12" label="Должность главы организации:" label-for="input-12">
-        <b-input
-          id="input-12"
-          v-model="layout.directorPosition"
-        ></b-input>
-      </b-form-group>
-      <b-form-group id="l-input-group-13" label="Ф.И.О. главы организации:" label-for="input-13">
-        <b-input
-          id="input-13"
-          v-model="layout.directorName"
-        ></b-input>
-      </b-form-group>
-      <br>
-      <b-button type="submit" variant="primary">Сохранить</b-button>
-    </b-form>
-
-  </div>
-  </div>
 </template>
 </div>
 

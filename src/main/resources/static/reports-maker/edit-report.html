@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Отчёты</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
+    <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue-icons.min.css" />
+    <script src="//polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver" crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/bootstrap-vue@2.2.0/dist/bootstrap-vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+    <script src="http://unpkg.com/portal-vue"></script>
+    <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue-icons.min.js"></script>
+</head>
+<body>
+<div id="root">
+<template>
+	<!-- Меню -->
+	<div id="menu">
+	    <b-navbar toggleable="lg" type="dark" variant="dark">
+		    <b-navbar-brand><h4 class="m-0">Отчёты</h4></b-navbar-brand>
+		    <b-navbar-toggle target="nav-collapse" ></b-navbar-toggle>
+		    <b-collapse id="nav-collapse" is-nav>
+	      <b-navbar-nav>
+	        <b-link href="index.html"><b-button variant="link" class="mr-3 text-light">Список</b-button></b-link>
+	        <b-navbar-nav v-show="report.id != null" class="ml-3 m-1">
+	            <b-button class="my-2 my-sm-0" @click="onReportDelete" size="sm">Удалить</b-button>
+	        </b-navbar-nav>
+	      </b-navbar-nav>
+	      <b-navbar-nav class="ml-auto">
+	        <b-link href="layouteditor.html"><b-button variant="link" class="mr-3 text-light">
+	        Редактор шаблона
+	        </b-button>
+	        </b-link>
+	      </b-navbar-nav>
+	    </b-collapse>
+		</b-navbar>
+	 </div> 
+	
+	<!-- Форма с основной информацией о мероприятии -->
+	<div class="container py-5">
+	  <b-form @submit="onReportSubmit" novalidate>
+	    <b-form-group id="input-group-1" label="Название:" label-for="input-1">
+	      <b-input :disabled="form.disabled == true"
+	        id="input-1"
+	        v-model="report.name"
+	        :state="form.isvalid1"
+	        required
+	      ></b-input>
+	    <b-form-invalid-feedback :state="form.isvalid1">
+	      Напишите название
+	    </b-form-invalid-feedback>
+	    </b-form-group>
+	    <b-form-group id="input-group-4" label="Название для отчётов:" 
+	    description="Название мероприятия, которое будет отображаться в отчётах. Можно оставить пустым, если совпадает с обычным названием"
+	    label-for="input-4">
+	      <b-form-input :disabled="form.disabled == true"
+	        id="input-4"
+	        v-model="report.officialName"
+	      ></b-form-input>
+	
+	    </b-form-group>
+	    <div class="row">
+	      <div class="col-sm-6">
+	        <b-form-group id="input-group-2 mb-2" label="Дата начала:" label-for="input-2" >
+	          <b-input inline id="input-2" :disabled="form.disabled == true"
+	                type="date"
+	                v-model="report.dateStart"
+	                required
+	                :state="form.isvalid2"
+	          ></b-input>
+	        <b-form-invalid-feedback :state="form.isvalid2">
+	          Введите дату начала
+	        </b-form-invalid-feedback>
+	        </b-form-group>
+	      </div>
+	      <div class="col-sm-6">
+	        <b-form-group id="input-group-2 mb-2" label="Дата окончания (необязательно):" label-for="input-3" >
+	          <b-form-input inline id="input-3" :disabled="form.disabled == true"
+	                type="date"
+	                v-model="report.dateEnd"
+	                :state="form.isvalid3"
+	          ></b-form-input>
+	          <b-form-invalid-feedback :state="form.isvalid3">
+	          Дата окончания должна быть позже даты начала
+	          </b-form-invalid-feedback>
+	        </b-form-group>
+	      </div>
+	    </div>
+	  <b-button variant="primary" v-show="form.disabled != true" type="submit">Сохранить</b-button>
+	  <b-button variant="primary" v-show="form.disabled == true" @click="onReportEdit">Редактировать</b-button>
+	  </b-form>
+	</div>
+
+	<!-- Отчёты (документы) мероприятия и кнопка для создания нового отчёта -->
+	<div v-show="template.showSelectDocType">
+		<div class="container-fluid p-0 border-top py-5">
+			<div v-show="report.docs.length != 0" class="container mb-5">
+			<h4 class="mt-0 mb-4">Отчёты по этому мероприятию</h4>
+			
+			<div class="mb-2">
+				<b-button class="d-inline mr-2 my-sm-0" @click="onDocPrint" size="sm">Открыть</b-button> 
+				<b-button class="d-inline mr-2 my-sm-0" @click="createNewDoc" size="sm">Редактировать</b-button>
+				<b-button class="float-right d-inline mr-2 my-sm-0" variant="danger" @click="onDocDelete" size="sm">Удалить</b-button>
+			</div>
+			<div class="mb-3" style="max-height:500px; overflow-y:scroll;">
+			
+			
+			<b-table class="table-sm" outlined hover ref="selectableTable" selectable selected-variant="success" 
+		    	select-mode="multi" @row-selected="onRowSelected" responsive="sm" 
+		    	:fields="fields" :items="docs">
+		            <template v-slot:cell(selected)="{ rowSelected }">
+		                <template v-if="rowSelected">
+		                    <span aria-hidden="true">&check;</span>
+		                    <span class="sr-only">Selected</span>
+		                </template>
+		                <template v-else>
+		                    <span aria-hidden="true">&nbsp;</span>
+		                    <span class="sr-only">Not selected</span>
+		                </template>
+		            </template>
+				      <template v-slot:cell(docname)="data">
+				        {{ docName(data.item.type) }}
+				      </template>
+		    </b-table>
+				
+			</div>
+
+			</div>
+			<div class="container" v-show="newDoc.id == null">
+				<b-form inline>
+			        <label class="mr-2" for="inline-form-input">Выберите тип отчёта: </label>
+			    	<b-form-select class="mr-2" id="inline-form-input" v-model="selectedDocType" :options="docType" >
+			   		</b-form-select>
+					<b-button variant="primary" @click="createNewDoc">Создать</b-button>
+				</b-form>    
+			</div>
+		</div>
+	</div>
+	
+	<!-- Редактор отчёта (документа) -->
+	<div v-show="template.showEditor">
+		<div class="container-fluid p-0 border-top py-5">
+		  
+			<!-- Вкладки(табы) редактора отчёта -->
+			<div class="container">
+			<h4 class="mt-0">Редактор отчёта</h4>
+			<p class="text-justify">Внесите все необходимые изменения, заполните пустые поля и сохраните отчёт. На основе сохраненных данных будет сформирован печатный вариант отчёта.</p>
+				
+			<b-card no-body> 
+			<b-tabs card> 
+			<b-tab v-show="newDoc.type==1" title="Фотографии" active>
+				Фотографии: <b-form-file ref="file-input" v-model="photos"
+					accept="image/*" multiple
+					placeholder="Выберите файлы или перетащите сюда..."></b-form-file>
+				<p>
+					<small class="text-muted">Рекомендуется загружать не более
+						6 фотографий для размещения на одном листе. Можно загружать
+						фотографии несколько раз (будут добавляться к набору)
+					</small>
+				</p>
+				<p class="mb-2">
+					<b-button @click="uploadPhotos">Загрузить</b-button>
+				</p>
+			<div class="row">
+				<div class="col-md-2 position-relative"
+					v-for="(photo, index) in uploadedPhotos">
+					<div class="position-absolute text-right w-100 h4 mr-3 btn pr-3">
+						<b-icon-x-square-fill @click="delPhoto(index)"
+							class="rounded bg-light"></b-icon-x-square-fill>
+					</div>
+					<b-img-lazy v-bind="mainProps"
+						:src="'data:image/jpg;base64,' + photo.image"></b-img-lazy>
+					<div class="input-group input-group-sm mb-3">
+						<b-form-input v-model="photo.text" placeholder="Подпись"></b-form-input>
+					</div>
+				</div>
+			</div>
+			</b-tab> 
+			
+			<b-tab title="Верх страницы"> 
+			<p><b-link v-b-modal.modal-1>Разметка <b-icon-question></b-icon-question></b-link></p>
+			<div class="row">
+				<div class="col-md-6">
+					<b-form-textarea class="w-100 mb-2" rows="4" max-rows="4" v-model="newDoc.layout.headLeft"></b-form-textarea> 
+				</div>
+				<div class="col-md-6">
+					<b-form-textarea class="w-100 mb-2" rows="4" max-rows="4" v-model="newDoc.layout.headRight"></b-form-textarea> 
+				</div>
+				<div class="col-md-12">
+					<b-form-textarea class="w-100 mb-2" rows="4" max-rows="8" v-model="newDoc.layout.body"></b-form-textarea> 
+				</div>
+			</div>
+			</b-tab> 
+							
+			<b-tab title="Низ страницы"> 				
+			<p><b-link v-b-modal.modal-1>Разметка <b-icon-question></b-icon-question></b-link></p>
+			<div class="row">
+									<div class="col-md-12">
+										<b-form-textarea class="w-100 mb-2" rows="4" max-rows="8" v-model="newDoc.layout.footer"></b-form-textarea> 
+									</div>
+									<div class="col-md-4">
+										<b-form-textarea class="w-100 mb-2" rows="4" max-rows="4" v-model="newDoc.layout.footerLeft"></b-form-textarea> 
+									</div>
+									<div class="col-md-4">
+										<b-form-textarea class="w-100 mb-2" rows="4" max-rows="4" v-model="newDoc.layout.footerCenter"></b-form-textarea> 
+									</div>
+									<div class="col-md-4">
+										<b-form-textarea class="w-100 mb-2" rows="4" max-rows="4" v-model="newDoc.layout.footerRight"></b-form-textarea> 
+									</div>
+								</div>
+			</b-tab> 
+			
+			</b-tabs>
+			</b-card>
+			
+			<p><small class="text-muted">Печатная форма станет доступна после сохранения</small></p>
+			<p class="mb-5">
+					<b-button @click="onDocSave" class="mr-3">Сохранить</b-button>
+					<b-button v-show="newDoc.id != null" @click="onDocPrint" class="mr-3">Печатная форма</b-button>
+					<b-button @click="closeDocEdit" class="mr-3">Закрыть редактор</b-button>
+			</p>
+						
+			<!-- Всплывающее окно с напоминание синтаксиса разметки -->	
+			<b-modal id="modal-1" title="Разметка форматирования текста">
+			    			<p>   
+							    <ul class="list-group">
+							        <li class="list-group-item">&lt;b&gt;<b>Жирный текст</b>&lt;/b&gt;</li>
+							        <li class="list-group-item">&lt;l&gt;По левому краю&lt;/lcr&gt;</li>
+							        <li class="list-group-item text-right">&lt;r&gt;По правому краю&lt;/lcr&gt;</li>
+							        <li class="list-group-item text-center">&lt;c&gt;По центру&lt;/lcr&gt;</li>
+								</ul>
+							</p>
+					  	</b-modal>
+							
+			</div>
+			
+			<!-- Превью печатной формы -->
+			<div class="container-fluid p-0 border-top my-5 pt-5">
+			<div class="container">
+				<h4>Превью</h4>
+				<div id="paper" class="bg-light text-dark border mb-3 px-5 py-4 pl-5">
+					<!-- Этот блок и его содержимое сохраняется для печати -->
+					<div id="data" class="container-fluid h-100 p-0 d-flex flex-column" style="justify-content: space-between;">
+				
+					<!-- Превью печатной страницы -->
+					<!-- 1. Шапка -->
+					<div class="container-fluid py-3">
+						<div class="row">
+							<div class="col-md-6">
+								<div v-html="replaceStyles(newDoc.layout.headLeft)"></div>
+							</div>
+							<div class="col-md-6">
+								<div v-html="replaceStyles(newDoc.layout.headRight)"></div>
+							</div>
+							<div class="col-md-12 mt-2">
+								<div v-html="replaceStyles(newDoc.layout.body)"></div>
+							</div>
+						</div>
+					</div>
+					<!-- 2.1 Фотографии (видно только для Фотоотчётов) -->
+					<div class="container-fluid" v-show="newDoc.type == 1">
+						<div class="row">
+							<div class="col-md-6 position-relative p-2" v-for="photo in uploadedPhotos">
+								<b-img :src="'data:image/jpg;base64,' + photo.image" fluid></b-img>
+								<small v-text="photo.text"></small>
+							</div>
+						</div>
+					</div>
+					<!-- 3. Низ -->
+					<div class="container-fluid pt-3">
+					<div class="row">
+						<div class="col-md-12">
+							<div v-html="replaceStyles(newDoc.layout.footer)"></div>
+						</div>
+						<div class="col-md-4">
+							<div v-html="replaceStyles(newDoc.layout.footerLeft)"></div>
+						</div>
+						<div class="col-md-4">
+							<div v-html="replaceStyles(newDoc.layout.footerCenter)"></div>
+						</div>
+						<div class="col-md-4">
+							<div v-html="replaceStyles(newDoc.layout.footerRight)"></div>
+						</div>
+					</div>
+				</div>
+				
+				</div>
+				</div>
+			</div>
+		</div>  
+		 
+		</div>    
+	</div>
+ 
+
+</template>
+</div>
+
+<script src="js/vuereport.js"></script>
+</body>
+</html>

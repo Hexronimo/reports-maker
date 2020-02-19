@@ -15,6 +15,8 @@ public class Photo {
 	private String title;
 
 	private Binary image;
+	
+	private String text;
 
 	public Photo() {
 		id = new ObjectId();
@@ -36,12 +38,21 @@ public class Photo {
 		return Base64.getEncoder().encodeToString(image.getData());
 	}
 
+	public String getText() {
+		if (text == null) return "";
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
+
 	public void setImageBinary(Binary image) {
 		this.image = image;
 	}
 
 	public void setImage(String data) {
-
+		image = new Binary(Base64.getDecoder().decode(data));
 	}
 
 }

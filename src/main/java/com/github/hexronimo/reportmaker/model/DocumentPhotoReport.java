@@ -4,18 +4,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.mongodb.core.mapping.Document;
+@Document
+public class DocumentPhotoReport implements Doc {
 
-public class DocumentPhotoReport extends Document {
-
-	private ObjectId _id;
-	private final int type = 1; // one for Photoreports
+	@Id
+	private ObjectId id;
+	private int type = 1; // one for Photoreports
 	private String data;
 	private Layout layout;
 
-	private List<String> photos;
+	private List<Photo> photos;
 
 	public DocumentPhotoReport() {
-		_id = new ObjectId();
+		id = new ObjectId();
 		photos = new ArrayList<>();
 	}
 
@@ -41,14 +45,15 @@ public class DocumentPhotoReport extends Document {
 
 	@Override
 	public String getId() {
-		return _id.toHexString();
+		return id.toHexString();
 	}
+	
 
-	public void setPhotos(List<String> photos) {
+	public void setPhotos(List<Photo> photos) {
 		this.photos = photos;
 	}
 
-	public List<String> getPhotos() {
+	public List<Photo> getPhotos() {
 		return photos;
 	}
 

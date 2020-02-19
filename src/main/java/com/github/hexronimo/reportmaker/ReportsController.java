@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.github.hexronimo.reportmaker.exceptions.NotFoundException;
 import com.github.hexronimo.reportmaker.model.Doc;
 import com.github.hexronimo.reportmaker.model.DocsRepository;
+import com.github.hexronimo.reportmaker.model.DocumentPhotoReport;
 import com.github.hexronimo.reportmaker.model.Layout;
 import com.github.hexronimo.reportmaker.model.LayoutsRepository;
 import com.github.hexronimo.reportmaker.model.Photo;
@@ -62,20 +63,21 @@ public class ReportsController {
 	@GetMapping("{id}")
 	public Report getReport(@PathVariable ObjectId id) {
 		Optional<Report> result = reportsRepository.findById(id);
-		// if (result.isEmpty()) throw new NotFoundException();
+		if (result.isEmpty()) throw new NotFoundException();
 		return result.get();
 	}
 
 	@PostMapping()
-	public List<Report> create(@RequestBody Report report) {
+	public Report create(@RequestBody Report report) {
 		reportsRepository.save(report);
-		return reportsRepository.findAll();
+		return report;
 	}
 
 	@PutMapping("{id}")
-	public List<Report> update(@PathVariable ObjectId id, @RequestBody Report report) {
+	public Report update(@PathVariable ObjectId id, @RequestBody Report report) {
+		//TODO check if report id is the same as object id if no throw error
 		reportsRepository.save(report);
-		return reportsRepository.findAll();
+		return report;
 	}
 
 	@DeleteMapping("{id}")
@@ -108,9 +110,16 @@ public class ReportsController {
 	}
 
 	@PutMapping("/doc")
-	public String saveDoc(@RequestBody Doc doc) {
+	public Doc saveDoc(@RequestBody DocumentPhotoReport doc) {
 		docRepository.save(doc);
-		return doc.getId();
+		return doc;
+	}
+	
+	@GetMapping("/doc/{id}")
+	public Doc getDoc(@PathVariable ObjectId id) {
+		Optional<Doc> result = docRepository.findById(id);
+		if (result.isEmpty()) throw new NotFoundException();
+		return result.get();
 	}
 
 	@PostMapping("/photo")

@@ -1,12 +1,8 @@
 package com.github.hexronimo.reportmaker.model;
 
-import java.util.Base64;
-
-import org.bson.types.Binary;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
 
 @Document
 public class Layout {
@@ -15,7 +11,6 @@ public class Layout {
 	private ObjectId id;
 	
 	private String headLeft;
-	private String headCenter;
 	private String headRight;
 	
 	private String body;
@@ -41,15 +36,6 @@ public class Layout {
 
 	public void setHeadLeft(String headLeft) {
 		this.headLeft = headLeft;
-	}
-
-	public String getHeadCenter() {
-		if (headCenter == null) return "";
-		return headCenter;
-	}
-
-	public void setHeadCenter(String headCenter) {
-		this.headCenter = headCenter;
 	}
 
 	public String getHeadRight() {

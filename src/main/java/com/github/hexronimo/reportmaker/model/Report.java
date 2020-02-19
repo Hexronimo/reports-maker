@@ -3,7 +3,10 @@ package com.github.hexronimo.reportmaker.model;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -19,14 +22,15 @@ public class Report {
 	private LocalDate dateStart;
 	private LocalDate dateEnd;
 	
-	private List<Doc> docs;
+	private Map<String, Integer> docs; //Id and type
 	
 	public Report() {
 		id = new ObjectId();
-		docs = new ArrayList<>();
+		docs = new LinkedHashMap<>();
 	}
 
     public String getFancyDateStart() {
+    	if (dateStart == null) return "";
     	String d = dateStart.format(DateTimeFormatter.ofPattern("d MMMM yyyy"));
 		return d;
 	}
@@ -75,8 +79,16 @@ public class Report {
     public void setDateEnd(String dateEnd) {
     	if (dateEnd != null && dateEnd.length() > 0) {
 	    	LocalDate date = LocalDate.parse(dateEnd);
-	        this.dateStart = date;
+	        this.dateEnd = date;
     	}
     }
-}
 
+	public Map<String,Integer> getDocs() {
+		return docs;
+	}
+
+	public void setDocs(Map<String,Integer> docs) {
+		this.docs = docs;
+	}
+    
+}
