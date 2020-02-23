@@ -22,11 +22,11 @@ public class Report {
 	private LocalDate dateStart;
 	private LocalDate dateEnd;
 	
-	private Map<String, Integer> docs; //Id and type
+	private List<String> docs; //Id of docs
 	
 	public Report() {
 		id = new ObjectId();
-		docs = new LinkedHashMap<>();
+		docs = new ArrayList<>();
 	}
 
     public String getFancyDateStart() {
@@ -83,11 +83,11 @@ public class Report {
     	}
     }
 
-	public Map<String,Integer> getDocs() {
+	public List<String> getDocs() {
 		return docs;
 	}
 
-	public void setDocs(Map<String,Integer> docs) {
+	public void setDocs(List<String> docs) {
 		this.docs = docs;
 	}
     

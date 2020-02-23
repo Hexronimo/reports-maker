@@ -13,5 +13,6 @@ src/.settings
 src/.dbeaver
 src/test
 src/bin
+bin
 
 

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -82,7 +83,10 @@ public class ReportsController {
 
 	@DeleteMapping("{id}")
 	public void delete(@PathVariable ObjectId id) {
-		Report report = getReport(id);
+		Report report = getReport(id);	
+		for(String d: report.getDocs()) {
+			docRepository.deleteById(new ObjectId(d));
+		}
 		reportsRepository.delete(report);
 	}
 
@@ -109,10 +113,10 @@ public class ReportsController {
 		return doc.get();
 	}
 
-	@PutMapping("/doc")
-	public Doc saveDoc(@RequestBody DocumentPhotoReport doc) {
+	@PostMapping("/doc")
+	public String saveDoc(@RequestBody DocumentPhotoReport doc) {
 		docRepository.save(doc);
-		return doc;
+		return "{\"id\": \"" + doc.getId() + "\"}";
 	}
 	
 	@GetMapping("/doc/{id}")
@@ -120,6 +124,36 @@ public class ReportsController {
 		Optional<Doc> result = docRepository.findById(id);
 		if (result.isEmpty()) throw new NotFoundException();
 		return result.get();
+	}
+	
+	@DeleteMapping("/doc/{id}")
+	public void deleteDoc(@PathVariable ObjectId id, @RequestParam String reportId) {
+		Doc doc = getDoc(id);
+		docRepository.delete(doc);
+		if (reportId != null) {
+			Report report = getReport(new ObjectId(reportId));
+			int i = 0;
+			boolean found = false;
+			for (String d: report.getDocs()) {
+				if(d.equals(id.toHexString())) {
+					found = true;
+					break;
+				}
+				i++;
+			}
+			
+			if(found) {
+				report.getDocs().remove(i);
+				reportsRepository.save(report);
+			}
+		}
+	}
+	
+	@GetMapping("/doc/{id}/type")
+	public String getDocType(@PathVariable ObjectId id) {
+		Optional<Doc> result = docRepository.findById(id);
+		if (result.isEmpty()) throw new NotFoundException();
+		return "{\"type\": " + result.get().getType() + "}";
 	}
 
 	@PostMapping("/photo")

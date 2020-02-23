@@ -103,14 +103,14 @@
 			
 			<div class="mb-2">
 				<b-button class="d-inline mr-2 my-sm-0" @click="onDocPrint" size="sm">Открыть</b-button> 
-				<b-button class="d-inline mr-2 my-sm-0" @click="createNewDoc" size="sm">Редактировать</b-button>
+				<b-button class="d-inline mr-2 my-sm-0" @click="onDocEdit" size="sm">Редактировать</b-button>
 				<b-button class="float-right d-inline mr-2 my-sm-0" variant="danger" @click="onDocDelete" size="sm">Удалить</b-button>
 			</div>
 			<div class="mb-3" style="max-height:500px; overflow-y:scroll;">
 			
 			
 			<b-table class="table-sm" outlined hover ref="selectableTable" selectable selected-variant="success" 
-		    	select-mode="multi" @row-selected="onRowSelected" responsive="sm" 
+		    	select-mode="single" @row-selected="onRowSelected" responsive="sm" 
 		    	:fields="fields" :items="docs">
 		            <template v-slot:cell(selected)="{ rowSelected }">
 		                <template v-if="rowSelected">
@@ -122,9 +122,9 @@
 		                    <span class="sr-only">Not selected</span>
 		                </template>
 		            </template>
-				      <template v-slot:cell(docname)="data">
-				        {{ docName(data.item.type) }}
-				      </template>
+				    <template v-slot:cell(docname)="data">
+				        <span v-text="docName(data.item.type)"></span>
+				    </template>
 		    </b-table>
 				
 			</div>
@@ -133,9 +133,9 @@
 			<div class="container" v-show="newDoc.id == null">
 				<b-form inline>
 			        <label class="mr-2" for="inline-form-input">Выберите тип отчёта: </label>
-			    	<b-form-select class="mr-2" id="inline-form-input" v-model="selectedDocType" :options="docType" >
+			    	<b-form-select class="mr-2" id="inline-form-input" v-model="newDoc.type" :options="docType" >
 			   		</b-form-select>
-					<b-button variant="primary" @click="createNewDoc">Создать</b-button>
+					<b-button variant="primary" @click="onDocCreate">Создать</b-button>
 				</b-form>    
 			</div>
 		</div>
@@ -221,7 +221,7 @@
 			<p class="mb-5">
 					<b-button @click="onDocSave" class="mr-3">Сохранить</b-button>
 					<b-button v-show="newDoc.id != null" @click="onDocPrint" class="mr-3">Печатная форма</b-button>
-					<b-button @click="closeDocEdit" class="mr-3">Закрыть редактор</b-button>
+					<b-button @click="closeDocEditTemplate" class="mr-3">Закрыть редактор</b-button>
 			</p>
 						
 			<!-- Всплывающее окно с напоминание синтаксиса разметки -->	
